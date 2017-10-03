@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.mesterlum.rocko.FirstActivity"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:weightSum="1"
+    android:padding="30dp">
+
+    <TextView
+        android:id="@+id/textView"
+        style="@style/Widget.AppCompat.TextView.SpinnerItem"
+        android:layout_width="277dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.02"
+        android:text="Login Rockola"
+        android:textAlignment="center"
+        android:textSize="36sp" />
+
+    <EditText
+        android:id="@+id/user"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.02"
+        android:ems="10"
+        android:textAlignment="center"
+        android:inputType="textPersonName"
+         />
+
+    <EditText
+        android:id="@+id/password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.02"
+        android:ems="10"
+        android:textAlignment="center"
+        android:inputType="textPassword" />
+
+    <Button
+        android:id="@+id/login"
+        android:layout_width="313dp"
+        android:layout_height="wrap_content"
+        android:text="Login"
+        android:onClick="Login"
+        />
+</LinearLayout>

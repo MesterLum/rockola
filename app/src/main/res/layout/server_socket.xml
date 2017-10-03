@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:weightSum="1">
+    <include layout="@layout/toolbar" android:id="@+id/toolbar_server"></include>
+    <fragment
+        android:name="com.google.android.youtube.player.YouTubePlayerSupportFragment"
+        android:layout_width="match_parent"
+        android:id="@+id/youtube"
+        android:layout_height="182dp"/>
+
+    <TextView
+        android:id="@+id/ipPort"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textStyle="bold" />
+
+    <ListView
+        android:id="@+id/list_clientes"
+        android:layout_width="wrap_content"
+        android:layout_height="76dp"
+        android:layout_weight="0.24" />
+
+    <ListView
+        android:id="@+id/list_canciones"
+        android:layout_width="match_parent"
+        android:layout_height="155dp" />
+</LinearLayout>

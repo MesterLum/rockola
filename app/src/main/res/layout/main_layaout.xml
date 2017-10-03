@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="30dp"
+
+    >
+
+    <Button
+        android:id="@+id/server"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/holo_blue_dark"
+        android:onClick="Server"
+        android:text="Server" />
+
+    <Button
+        android:id="@+id/client"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="Client"
+        android:layout_marginTop="20dp"
+        android:background="@android:color/holo_blue_dark"
+        android:text="Client"
+        android:textColorLink="@android:color/background_light" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="match_parent"
+        android:layout_height="58dp"
+        android:layout_marginTop="40dp"
+        android:lines="10"
+        android:text="Server: el server sirve para que reproduscas la musica y obtengas la lista"
+        android:textAlignment="textStart" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="match_parent"
+        android:layout_height="58dp"
+        android:layout_marginTop="40dp"
+        android:lines="10"
+        android:text="Client: el cliente busca la musica y la reproduce el server"
+        android:textAlignment="textStart" />
+
+</LinearLayout>

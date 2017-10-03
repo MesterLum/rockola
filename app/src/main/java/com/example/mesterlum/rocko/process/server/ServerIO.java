@@ -3,23 +3,18 @@ package com.example.mesterlum.rocko.process.server;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.os.AsyncTask;
-import android.os.Looper;
 import android.os.StrictMode;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import com.example.mesterlum.rocko.process.Constants;
-import com.example.mesterlum.rocko.process.DataClient;
-import com.example.mesterlum.rocko.process.ServerActivity;
-import com.google.android.youtube.player.YouTubeInitializationResult;
-import com.google.android.youtube.player.YouTubePlayer;
-import com.google.android.youtube.player.YouTubePlayerView;
 
-import java.io.DataInputStream;
-import java.io.DataOutput;
-import java.io.DataOutputStream;
+import com.example.mesterlum.rocko.process.DataClient;
+
+import com.example.mesterlum.rocko.process.ServerActivity;
+import com.google.android.youtube.player.YouTubePlayer;
+
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.Inet4Address;
@@ -27,7 +22,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -71,7 +66,14 @@ public class ServerIO extends Thread{
     private YouTubePlayer youtube;
     private Activity activity;
     ArrayList<String>canciones;
-    public ServerIO(int port, ArrayList<String> listClients,ArrayList<String>canciones, YouTubePlayer youtube, Activity activity){
+    ArrayList<String>codeCancion;
+    ArrayAdapter<String> adapterItems;
+    ArrayAdapter<String> adapterCanciones;
+    ListView list;
+    ListView listCanciones;
+
+
+    public ServerIO(int port, ArrayList<String> listClients, ArrayList<String> canciones, YouTubePlayer youtube, ArrayAdapter<String> itemsAdapter, ArrayAdapter<String> cancionesAdapter, ListView listCanciones, ListView list){
         this.start();
         this.listClients = listClients;
         this.canciones = canciones;
@@ -79,21 +81,41 @@ public class ServerIO extends Thread{
         this.socketList = new ArrayList<Socket>();
         this.port = port;
         this.youtube = youtube;
-        this.activity = activity;
-
+        this.list = list;
+        this.listCanciones = listCanciones;
+        this.adapterCanciones = cancionesAdapter;
+        this.adapterItems = itemsAdapter;
+        this.codeCancion = new ArrayList<String>();
+        youtubeEvents();
 
 
     }
     private void addUser(String user){
         this.listClients.add(user);
-        //ServerActivity.itemsAdapter.notifyDataSetChanged();
+        this.list.post(new Runnable() {
+            @Override
+            public void run() {
+                adapterItems.notifyDataSetChanged();
+            }
+        });
+
 
     }
 
-    private void addCancion(String cancion){
+    private void addCancion(String cancion, String cancionCode){
         this.canciones.add(cancion);
-        //ServerActivity.itemsAdapter.notifyDataSetChanged();
+        this.codeCancion.add(cancionCode);
+        refreshCanciones();
 
+    }
+
+    private void refreshCanciones(){
+        this.listCanciones.post(new Runnable() {
+            @Override
+            public void run() {
+                adapterCanciones.notifyDataSetChanged();
+            }
+        });
     }
 
     public void run(){
@@ -123,10 +145,17 @@ public class ServerIO extends Thread{
                                     socketList.add(clientSocket);
                                     addUser(dataClient.getUser());
                                     listIpClients.add(ip);
+
                                 }else{
-                                    Log.i("Se agrego", dataClient.getMusic());
-                                    addCancion(dataClient.getMusic());
+
+                                    if (!youtube.isPlaying() && canciones.isEmpty())
+                                        youtube.loadVideo(dataClient.getMusicId());
+                                    addCancion(dataClient.getMusic(), dataClient.getMusicId());
+
+
+
                                 }
+
 
                             } catch (IOException e) {
                                 e.printStackTrace();
@@ -144,6 +173,49 @@ public class ServerIO extends Thread{
         }
 
     }
+
+    public void youtubeEvents(){
+        youtube.setPlayerStateChangeListener(new YouTubePlayer.PlayerStateChangeListener() {
+            @Override
+            public void onLoading() {
+
+            }
+
+            @Override
+            public void onLoaded(String s) {
+
+            }
+
+            @Override
+            public void onAdStarted() {
+
+            }
+
+            @Override
+            public void onVideoStarted() {
+                if (!canciones.isEmpty()) {
+                    canciones.set(0, canciones.get(0) + "(Reproduciendose)");
+                    refreshCanciones();
+                }
+            }
+
+            @Override
+            public void onVideoEnded() {
+                if (!canciones.isEmpty()){
+                    youtube.loadVideo(codeCancion.get(0));
+                    codeCancion.remove(0);
+                    canciones.remove(0);
+                    refreshCanciones();
+                }
+            }
+
+            @Override
+            public void onError(YouTubePlayer.ErrorReason errorReason) {
+
+            }
+        });
+    }
+
     String resultado = "perro";
     private String clientAccepted(String user){
 

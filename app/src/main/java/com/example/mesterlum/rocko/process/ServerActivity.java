@@ -85,7 +85,9 @@ public class ServerActivity extends AppCompatActivity implements YouTubePlayer.O
         return super.onOptionsItemSelected(item);
     }
 
-    public synchronized void createSocket(View view){
+    ListView list;
+    ListView listCanciones;
+    public  void createSocket(View view){
         String ip = "0.0.0.0";
         /*try {
            ip = ServerIO.getIp("wlan");
@@ -102,8 +104,9 @@ public class ServerActivity extends AppCompatActivity implements YouTubePlayer.O
         if (!ip.isEmpty()){
             this.layout.removeAllViews();
             setContentView(R.layout.server_socket);
-            ListView list = (ListView) findViewById(R.id.list_clientes);
-            ListView listCanciones = (ListView) findViewById(R.id.list_canciones);
+            list = (ListView) findViewById(R.id.list_clientes);
+            listCanciones = (ListView) findViewById(R.id.list_canciones);
+
             listCanciones.setAdapter(this.cancionesAdapter);
             list.setAdapter(this.itemsAdapter);
             TextView ipText = (TextView) findViewById(R.id.ipPort);
@@ -127,7 +130,7 @@ public class ServerActivity extends AppCompatActivity implements YouTubePlayer.O
     @Override
     public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer youTubePlayer, boolean b) {
         this.youtube = youTubePlayer;
-        ServerIO server = new ServerIO(Integer.parseInt(this.port),clients,cancionesArray, this.youtube, this);
+        ServerIO server = new ServerIO(Integer.parseInt(this.port),clients,cancionesArray, this.youtube, itemsAdapter, cancionesAdapter, listCanciones, list);
     }
 
     @Override

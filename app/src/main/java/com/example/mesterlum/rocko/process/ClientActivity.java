@@ -1,6 +1,7 @@
 package com.example.mesterlum.rocko.process;
 
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -30,9 +31,11 @@ import org.json.JSONObject;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.logging.Handler;
 
 /**
  * Created by mesterlum on 23/09/17.
@@ -50,6 +53,8 @@ public class ClientActivity extends AppCompatActivity {
     private String ip;
     private int port;
     private DataClient client;
+    private Handler handler;
+    private AlertDialog.Builder alert;
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -58,6 +63,8 @@ public class ClientActivity extends AppCompatActivity {
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
         this.user = extras.getString("User");
+        //this.handler = new Handler();
+        this.alert = new AlertDialog.Builder(this);
 
 
     }
@@ -85,6 +92,39 @@ public class ClientActivity extends AppCompatActivity {
         });
         return true;
     }
+
+    private void checkVotation(Socket client){
+
+        try {
+            while(true){
+                ObjectInputStream in = new ObjectInputStream(client.getInputStream());
+                final ArrayList<String> canciones = (ArrayList<String>) in.readObject();
+                final ArrayAdapter<String> ad = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, canciones);
+
+                //cancionesArray = canciones.toArray(cancionesArray);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        alert.setTitle("Vote por la canción que quiera")
+                                .setAdapter(ad, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        Log.e("Votacion", Integer.toString(i));
+                                    }
+                                }).show();
+
+                    }
+                });
+
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
     ArrayList<String> arrayId = new ArrayList<String>();
     ArrayList<String> arrayTittle = new ArrayList<String>();
     public void ApiConsult(String query){
@@ -142,6 +182,13 @@ public class ClientActivity extends AppCompatActivity {
 
         }
         this.socket = ClientIO.sockConnection(ip,this.port, this.user);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                checkVotation(socket);
+            }
+        }).start();
+
         this.client = new DataClient();
         this.client.setUser(this.user);
         try {

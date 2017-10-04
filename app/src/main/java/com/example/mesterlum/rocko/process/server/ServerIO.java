@@ -17,6 +17,7 @@ import com.google.android.youtube.player.YouTubePlayer;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -63,6 +64,7 @@ public class ServerIO extends Thread{
         }
         return null;
     }
+
     private YouTubePlayer youtube;
     private Activity activity;
     ArrayList<String>canciones;
@@ -101,6 +103,18 @@ public class ServerIO extends Thread{
 
 
     }
+    private void votation(ArrayList<Socket> sockets){
+        for (Socket clients : sockets){
+            try {
+                ObjectOutputStream out = new ObjectOutputStream(clients.getOutputStream());
+                ArrayList<String> can = canciones;
+                can.remove(0);
+                out.writeObject(can);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     private void addCancion(String cancion, String cancionCode){
         this.canciones.add(cancion);
@@ -117,22 +131,25 @@ public class ServerIO extends Thread{
             }
         });
     }
-
+    private static boolean is20 = false;
     public void run(){
         try {
 
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 
             StrictMode.setThreadPolicy(policy);
-            Log.i("Port", ""+this.port);
+            //Log.i("Port", ""+this.port);
             ServerSocket serverSocket = new ServerSocket(this.port);
             while(true){
 
                 Log.i("Socket", "Esperando...");
                 final Socket clientSocket = serverSocket.accept();
                 final String ip= clientSocket.getInetAddress().getHostAddress().toString();
+                Log.e("Ip client", ip);
+
                 new Thread(new Runnable() {
                     @Override
+
                     public void run() {
                         while(true){
                             try {
@@ -146,11 +163,17 @@ public class ServerIO extends Thread{
                                     addUser(dataClient.getUser());
                                     listIpClients.add(ip);
 
+
                                 }else{
 
                                     if (!youtube.isPlaying() && canciones.isEmpty())
                                         youtube.loadVideo(dataClient.getMusicId());
                                     addCancion(dataClient.getMusic(), dataClient.getMusicId());
+                                    if (canciones.size() > 19){
+
+                                        is20 = true;
+                                        votation(socketList);
+                                    }
 
 
 
@@ -202,7 +225,8 @@ public class ServerIO extends Thread{
             @Override
             public void onVideoEnded() {
                 if (!canciones.isEmpty()){
-                    youtube.loadVideo(codeCancion.get(0));
+                    if (canciones.size() > 0)
+                        youtube.loadVideo(codeCancion.get(0));
                     codeCancion.remove(0);
                     canciones.remove(0);
                     refreshCanciones();

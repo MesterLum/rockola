@@ -11,6 +11,29 @@ public class DataClient implements Serializable {
     private String user;
     private String music;
     private String musicId;
+    private boolean exit=false;
+    private String head;
+    private int cancion;
+
+    public int getCancion() {
+        return cancion;
+    }
+
+    public void setCancion(int cancion) {
+        this.cancion = cancion;
+    }
+
+    public String getHead() {
+        return head;
+    }
+
+    public void setHead(String head) {
+        this.head = head;
+    }
+
+    public boolean isExit() {  return exit; }
+
+    public void setExit(boolean exit) { this.exit = exit; }
 
     public String getMusicId() {
         return musicId;

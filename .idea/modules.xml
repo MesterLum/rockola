@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Rocko.iml" filepath="$PROJECT_DIR$/Rocko.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/rockola.iml" filepath="$PROJECT_DIR$/rockola.iml" />
     </modules>
   </component>
 </project>

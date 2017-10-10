@@ -50,11 +50,11 @@ public class ClientActivity extends AppCompatActivity {
     private ArrayAdapter<String> arrayAdapterSearch;
     private ArrayList<String> arraySearch;
     private Socket socket;
-    private String ip;
     private int port;
+    private String ip;
     private DataClient client;
-    private Handler handler;
     private AlertDialog.Builder alert;
+
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -68,6 +68,33 @@ public class ClientActivity extends AppCompatActivity {
 
 
     }
+
+    @Override
+    public void onStop(){
+        super.onStop();
+        if (this.socket != null){
+            try {
+                Log.e("App", "Desconexion");
+                this.client.setExit(true);
+                ObjectOutputStream clientOS = new ObjectOutputStream(socket.getOutputStream());
+                clientOS.writeObject(client);
+                //clientOS.close();
+                //this.socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }else{
+            Log.i("App", "Esta null");
+        }
+
+    }
+    /*@Override
+    public void onResume(){
+        super.onResume();
+        this.layout.removeAllViews();
+        setContentView(this.layout);
+
+    }*/
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
@@ -93,11 +120,11 @@ public class ClientActivity extends AppCompatActivity {
         return true;
     }
 
-    private void checkVotation(Socket client){
+    private void checkVotation(final Socket cliente){
 
         try {
             while(true){
-                ObjectInputStream in = new ObjectInputStream(client.getInputStream());
+                ObjectInputStream in = new ObjectInputStream(cliente.getInputStream());
                 final ArrayList<String> canciones = (ArrayList<String>) in.readObject();
                 final ArrayAdapter<String> ad = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, canciones);
 
@@ -109,7 +136,16 @@ public class ClientActivity extends AppCompatActivity {
                                 .setAdapter(ad, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
-                                        Log.e("Votacion", Integer.toString(i));
+                                        try {
+                                            client.setHead("votacion");
+                                            client.setCancion(i);
+                                            System.out.println(client.getCancion() + " " + client.getHead());
+                                            ObjectOutputStream clientOS = new ObjectOutputStream(socket.getOutputStream());
+                                            clientOS.writeObject(client);
+                                            client.setHead("");
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
                                     }
                                 }).show();
 
@@ -125,9 +161,10 @@ public class ClientActivity extends AppCompatActivity {
         }
     }
 
-    ArrayList<String> arrayId = new ArrayList<String>();
-    ArrayList<String> arrayTittle = new ArrayList<String>();
+    private ArrayList<String> arrayId = new ArrayList<String>();
+    private ArrayList<String> arrayTittle = new ArrayList<String>();
     public void ApiConsult(String query){
+
         String URL_API = "https://www.googleapis.com/youtube/v3/search?part=snippet&q="+query+"&type=video&key=AIzaSyDOteAJfJjKaX1JBJxCQ7wp5vH5irZXCu8";
 
         new HttpClient(new OnHttpRequestComplete() {
@@ -182,22 +219,25 @@ public class ClientActivity extends AppCompatActivity {
 
         }
         this.socket = ClientIO.sockConnection(ip,this.port, this.user);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                checkVotation(socket);
-            }
-        }).start();
 
-        this.client = new DataClient();
-        this.client.setUser(this.user);
-        try {
-            ObjectOutputStream clientOS = new ObjectOutputStream(this.socket.getOutputStream());
-            clientOS.writeObject(this.client);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
         if (this.socket != null){
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    checkVotation(socket);
+                }
+            }).start();
+
+            this.client = new DataClient();
+            this.client.setUser(this.user);
+            this.client.setHead(" ");
+            try {
+                ObjectOutputStream clientOS = new ObjectOutputStream(this.socket.getOutputStream());
+                clientOS.writeObject(this.client);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             this.layout.removeAllViews();
             setContentView(R.layout.client);
             this.listSearch = (ListView) findViewById(R.id.lista_search);
@@ -215,6 +255,7 @@ public class ClientActivity extends AppCompatActivity {
         else{
             AlertDialog.Builder alert = new AlertDialog.Builder(this);
             alert.setMessage("No se encontro este server").show();
+
         }
 
     }

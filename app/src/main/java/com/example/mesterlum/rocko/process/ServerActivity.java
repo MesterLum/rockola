@@ -89,12 +89,12 @@ public class ServerActivity extends AppCompatActivity implements YouTubePlayer.O
     ListView listCanciones;
     public  void createSocket(View view){
         String ip = "0.0.0.0";
-        /*try {
+        try {
            ip = ServerIO.getIp("wlan");
         }
         catch(Exception e){
             e.printStackTrace();
-        }*/
+        }
         EditText port = (EditText) findViewById(R.id.port);
         this.port =port.getText().toString();
 
